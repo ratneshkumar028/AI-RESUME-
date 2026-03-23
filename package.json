@@ -1,0 +1,8 @@
+{
+  "name": "ai-resume-builder",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "npm run build --prefix client"
+  }
+}

@@ -1,36 +1,8 @@
-import express from "express";
-import cors from "cors";
-import mongoose from "mongoose";
-import dotenv from "dotenv";
-import authRoutes from "./routes/auth.js";
-import resumeRoutes from "./routes/resumes.js";
+import app from "./app.js";
+import { closeMongo, connectToDatabase } from "./lib/db.js";
 
-dotenv.config();
-
-const app = express();
-
-// Basic middleware
-app.use(cors());
-app.use(express.json({ limit: "10mb" }));
-
-// API routes
-app.use("/api/auth", authRoutes);
-app.use("/api/resumes", resumeRoutes);
-
-app.get("/", (req, res) => {
-  res.send("AI Resume Builder API is running");
-});
-
-// Database connection
 const PORT = process.env.PORT || 5000;
-const MONGO_URI = process.env.MONGO_URI;
 let isShuttingDown = false;
-
-const closeMongo = async () => {
-  if (mongoose.connection.readyState !== 0) {
-    await mongoose.connection.close();
-  }
-};
 
 const shutdown = async (server, signal, onClosed = () => process.exit(0)) => {
   if (isShuttingDown) return;
@@ -47,13 +19,8 @@ const shutdown = async (server, signal, onClosed = () => process.exit(0)) => {
 };
 
 const startServer = async () => {
-  if (!MONGO_URI) {
-    console.error("Missing MONGO_URI. Add it to server/.env before starting the API.");
-    process.exit(1);
-  }
-
   try {
-    await mongoose.connect(MONGO_URI);
+    await connectToDatabase();
     console.log("MongoDB connected");
 
     const server = app.listen(PORT, () => {
