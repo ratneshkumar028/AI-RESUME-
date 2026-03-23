@@ -8,7 +8,9 @@ import resumeRoutes from "./routes/resumes.js";
 
 const currentDir = dirname(fileURLToPath(import.meta.url));
 
-dotenv.config({ path: resolve(currentDir, "../.env") });
+if (!process.env.VERCEL) {
+  dotenv.config({ path: resolve(currentDir, "../.env") });
+}
 
 const app = express();
 
